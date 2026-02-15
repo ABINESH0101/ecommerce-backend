@@ -1,14 +1,15 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 3001;
+
+// ✅ IMPORTANT: Use Render's port
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Mock DB for OTPs (in real app, use Redis or similar)
+// Mock DB for OTPs
 let otpStore = {};
 
 // --- OTP Endpoints ---
@@ -18,7 +19,6 @@ app.post('/api/otp/send', (req, res) => {
     const { contact } = req.body;
     if (!contact) return res.status(400).json({ error: 'Contact info required' });
 
-    // Mock sending OTP
     const otp = "1234"; // Simulation constant
     otpStore[contact] = otp;
 
@@ -38,17 +38,16 @@ app.post('/api/otp/verify', (req, res) => {
     res.status(400).json({ success: false, error: 'Invalid OTP' });
 });
 
-// --- Payment Endpoints ---
+// --- Payment Endpoint ---
 
 app.post('/api/payment/process', (req, res) => {
-    const { amount, method, details } = req.body;
+    const { amount, method } = req.body;
 
     console.log(`[Backend] Processing ${method} payment of ₹${amount}...`);
 
-    // Simulate delay
     setTimeout(() => {
-        // 90% success rate for simulation
         const success = Math.random() > 0.1;
+
         if (success) {
             res.json({ success: true, transactionId: 'TXN' + Date.now() });
         } else {
@@ -57,6 +56,7 @@ app.post('/api/payment/process', (req, res) => {
     }, 2000);
 });
 
+// Start Server
 app.listen(PORT, () => {
-    console.log(`Amoga Mart Backend running on http://localhost:${PORT}`);
+    console.log(`Amoga Mart Backend running on port ${PORT}`);
 });
