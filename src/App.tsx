@@ -26,7 +26,8 @@ import {
     Loader2
 } from 'lucide-react';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = 'https://ecommerce-backend-3hz3.onrender.com';
+
 
 // --- Types ---
 type Screen = 'splash' | 'login' | 'otp' | 'products' | 'wishlist' | 'profile' | 'cart' | 'payment' | 'success' | 'orders';
