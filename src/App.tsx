@@ -558,8 +558,16 @@ export default function App() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'API Error');
+
+            const contentType = res.headers.get('content-type');
+            let data;
+            if (contentType && contentType.includes('application/json')) {
+                data = await res.json();
+            } else {
+                data = { message: await res.text() };
+            }
+
+            if (!res.ok) throw new Error(data.error || data.message || 'API Error');
             return data;
         } catch (e: any) {
             showToast(e.message, 'error');
@@ -572,7 +580,7 @@ export default function App() {
     const sendOtp = async (val: string) => {
         if (!val) return showToast('Enter contact info', 'error');
         setContact(val);
-        const res = await callApi('/otp/send', { contact: val });
+        const res = await callApi('/api/otp/send', { contact: val });
         if (res) {
             showToast(`OTP Sent! (SIMULATION: ${res.simulationOtp})`, 'success');
             setScreen('otp');
@@ -580,7 +588,7 @@ export default function App() {
     };
 
     const verifyOtp = async (otp: string) => {
-        const res = await callApi('/otp/verify', { contact, otp });
+        const res = await callApi('/api/otp/verify', { contact, otp });
         if (res) {
             showToast('Login Successful!', 'success');
             setScreen('products');
@@ -589,7 +597,7 @@ export default function App() {
 
     const processPayment = async (method: string) => {
         const amount = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-        const res = await callApi('/payment/process', { amount, method });
+        const res = await callApi('/api/payment/process', { amount, method });
         if (res) {
             const newOrder = {
                 items: [...cart],
